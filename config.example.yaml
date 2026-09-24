@@ -1,0 +1,430 @@
+schema_version: 4
+
+hotkeys:
+  dictate: ctrl+win+space
+  polish: ctrl+win+p
+  cancel: ctrl+win+esc
+  tap_to_toggle_dictation: true
+  toggle_tap_seconds: 0.35
+
+audio:
+  input_device:
+  input_device_fingerprint: ""
+  input_device_name: ""
+  input_device_host_api: ""
+  input_device_channels: 0
+  input_device_sample_rate: 0
+  last_successful_input_at: 0.0
+  sample_rate: 16000
+  channels: 1
+  min_record_seconds: 0.25
+
+speech:
+  engine: faster_whisper
+  model: small.en
+  device: cpu
+  compute_type: int8
+  language: en
+  purpose: dictation
+  beam_size: 1
+  vad_filter: true
+  preload_on_startup: true
+  max_cached_models: 2
+
+dictation:
+  polish_enabled: true
+  ramble_model: small.en
+  polish_model: small.en
+  rewrite_instruction_model: small.en
+  polish_fallback_to_ramble: true
+
+rewrite:
+  provider: embedded
+  ollama_url: http://127.0.0.1:11434/api/generate
+  model: qwen2.5:1.5b
+  prompt_profile: auto
+  temperature: 0.2
+  seed: 7
+  timeout_seconds: 45
+  preview_before_apply: false
+  ollama_keep_alive: 300
+  llama_server_path: ""
+  llama_model_id: qwen3-4b-instruct-2507-q4km
+  llama_model_path: ""
+  llama_server_url: ""
+  llama_api_key: ""
+  llama_device: ""
+  llama_gpu_layers: auto
+  llama_context_size: 4096
+  llama_threads: 0
+  llama_start_timeout_seconds: 90
+  llama_idle_seconds: 300
+
+paste:
+  restore_clipboard: true
+  restore_mode: delayed
+  restore_delay_ms: 120
+  paste_delay_ms: 80
+  copy_delay_ms: 120
+
+hud:
+  enabled: true
+  opacity: 0.94
+  show_idle: false
+  auto_hide_seconds: 0.35
+  theme: system
+  mode: compact
+  position: center
+  recording_chimes: true
+
+tray:
+  enabled: true
+
+startup:
+  start_with_windows: false
+
+onboarding:
+  completed: false
+  completed_at: ""
+
+updates:
+  feed_url: ""
+  channel: stable
+  publisher: ""
+  auto_check: true
+
+history:
+  enabled: true
+  max_items: 200
+  retention_days: 0
+
+correction_memory:
+  enabled: true
+  max_rules: 500
+
+voice_commands:
+  enabled: true
+  edit_presets_enabled: true
+  local_actions_enabled: true
+
+spoken_actions:
+  enabled: true
+  enter_phrase: press enter
+
+spoken_formatting:
+  enabled: true
+
+snippets:
+  enabled: true
+  items:
+    - name: Today's date
+      trigger: today's date
+      text: "{date}"
+      aliases:
+        - today date
+      profiles: []
+    - name: Current time
+      trigger: current time
+      text: "{time}"
+      aliases:
+        - the current time
+      profiles: []
+    - name: Date and time
+      trigger: date and time
+      text: "{datetime}"
+      aliases:
+        - current date and time
+        - today's date and time
+      profiles: []
+
+writing_style:
+  preset: natural
+  custom_instruction: ''
+
+profiles:
+  enabled: true
+  default_profile: general
+  rules:
+    - profile: code
+      processes:
+        - Code.exe
+        - Cursor.exe
+        - Antigravity IDE.exe
+        - Kiro.exe
+        - TRAE.exe
+        - Zed.exe
+        - Zed-Preview.exe
+        - VSCodium.exe
+        - WindowsTerminal.exe
+        - wt.exe
+        - python.exe
+      title_contains: []
+    - profile: chat
+      processes:
+        - Slack.exe
+        - Teams.exe
+        - Discord.exe
+      title_contains: []
+    - profile: email
+      processes:
+        - OUTLOOK.EXE
+      title_contains:
+        - Gmail
+        - Outlook
+        - Mail
+    - profile: prompt
+      processes:
+        - Codex.exe
+        - ChatGPT.exe
+        - Claude.exe
+        - Antigravity.exe
+        - Ollama App.exe
+      title_contains:
+        - ChatGPT
+        - Claude
+        - Gemini
+        - Perplexity
+    - profile: notes
+      processes:
+        - notepad.exe
+        - notepad++.exe
+        - onenote.exe
+        - obsidian.exe
+        - notion.exe
+        - evernote.exe
+        - joplin.exe
+        - simplenote.exe
+        - standard-notes.exe
+        - logseq.exe
+        - upnote.exe
+        - notesnook.exe
+        - typora.exe
+        - zettlr.exe
+      title_contains: []
+    - profile: docs
+      processes: []
+      title_contains:
+        - Google Docs
+        - Notion
+        - Word
+  styles:
+    general:
+      label: General
+      dictation_prompt: Clean spoken text into natural writing with punctuation.
+      rewrite_prompt: Keep the rewrite natural, clear, and faithful to the user's intent.
+      vocabulary: []
+    chat:
+      label: Chat concise
+      dictation_prompt: Prefer concise conversational phrasing suitable for chat messages.
+      rewrite_prompt: Keep the response short, friendly, and easy to scan.
+      vocabulary: []
+    email:
+      label: Polished email
+      dictation_prompt: Prefer complete sentences and a polished professional email tone.
+      rewrite_prompt: Use a polished but direct professional tone suitable for email.
+      vocabulary: []
+    code:
+      label: Code-aware
+      dictation_prompt: Preserve code identifiers, file names, CLI flags, and technical terms exactly when possible.
+      rewrite_prompt: Preserve code identifiers, file paths, API names, and technical terms. Avoid smart quotes around code.
+      vocabulary:
+        - API
+        - CLI
+        - JSON
+        - YAML
+        - PowerShell
+        - VS Code
+        - Cursor
+    prompt:
+      label: Prompt-aware
+      dictation_prompt: Transform rough speech into a direct AI-assistant prompt. Preserve constraints, examples, desired output, filenames, code identifiers, and quoted text. Do not answer the prompt.
+      rewrite_prompt: Make the text a precise AI-assistant prompt with task, context, constraints, and desired output. Do not invent missing requirements.
+      vocabulary: []
+    notes:
+      label: Notes
+      dictation_prompt: Clean spoken notes into compact, scannable text. Preserve intentional fragments, headings, checklists, ordering, and line breaks. Add structure only when spoken or clearly list-like; never invent tasks, dates, or details.
+      rewrite_prompt: Follow the requested edit while preserving note structure, facts, unfinished thoughts, checkboxes, ordering, and intentional line breaks. Do not add unsupported details.
+      vocabulary: []
+    docs:
+      label: Docs polished
+      dictation_prompt: Prefer structured prose suitable for notes or documentation.
+      rewrite_prompt: Make the text structured, clear, and documentation-friendly.
+      vocabulary: []
+
+browser_context:
+  enabled: true
+  timeout_ms: 450
+  browser_processes:
+    - arc.exe
+    - avastbrowser.exe
+    - avgbrowser.exe
+    - brave.exe
+    - browser.exe
+    - ccleanerbrowser.exe
+    - chrome.exe
+    - chromium.exe
+    - coc_coc_browser.exe
+    - dragon.exe
+    - duckduckgo.exe
+    - epic.exe
+    - firefox.exe
+    - floorp.exe
+    - iexplore.exe
+    - iridium.exe
+    - librewolf.exe
+    - maxthon.exe
+    - msedge.exe
+    - opera.exe
+    - opera_gx.exe
+    - palemoon.exe
+    - qqbrowser.exe
+    - seamonkey.exe
+    - sidekick.exe
+    - thorium.exe
+    - vivaldi.exe
+    - waterfox.exe
+    - wavebox.exe
+    - whale.exe
+    - yandex.exe
+    - zen.exe
+  rules:
+    - profile: email
+      domains:
+        - mail.google.com
+        - outlook.live.com
+        - outlook.office.com
+        - mail.yahoo.com
+        - proton.me
+        - protonmail.com
+        - superhuman.com
+    - profile: docs
+      domains:
+        - docs.google.com
+        - notion.so
+        - notion.site
+        - coda.io
+        - confluence
+        - sharepoint.com
+        - office.com
+    - profile: prompt
+      domains:
+        - chatgpt.com
+        - claude.ai
+        - gemini.google.com
+        - perplexity.ai
+        - poe.com
+        - copilot.microsoft.com
+        - bolt.new
+        - v0.dev
+        - lovable.dev
+        - base44.com
+    - profile: code
+      domains:
+        - github.com
+        - gitlab.com
+        - bitbucket.org
+        - stackoverflow.com
+        - linear.app
+        - atlassian.net
+        - vercel.com
+        - replit.com
+        - stackblitz.com
+        - codesandbox.io
+        - github.dev
+        - vscode.dev
+        - studio.firebase.google.com
+        - gitpod.io
+    - profile: chat
+      domains:
+        - app.slack.com
+        - teams.microsoft.com
+        - discord.com
+        - web.whatsapp.com
+        - web.telegram.org
+        - messenger.com
+        - youtube.com
+        - youtu.be
+  site_styles:
+    - label: Email draft
+      domains:
+        - mail.google.com
+        - outlook.live.com
+        - outlook.office.com
+        - mail.yahoo.com
+        - proton.me
+        - protonmail.com
+        - superhuman.com
+      dictation_prompt: Clean this as an email draft. Prefer complete sentences, clear asks, and a warm direct tone. Do not add a greeting or signoff unless the user dictated one.
+      rewrite_prompt: Rewrite as a clear email message with a direct, useful tone. Keep the user's intent and avoid sounding overly formal.
+      vocabulary: []
+    - label: AI prompt
+      domains:
+        - chatgpt.com
+        - claude.ai
+        - gemini.google.com
+        - perplexity.ai
+        - poe.com
+        - copilot.microsoft.com
+        - bolt.new
+        - v0.dev
+        - lovable.dev
+        - base44.com
+      dictation_prompt: Turn rough dictation into a strong AI-assistant prompt. Preserve task, context, constraints, desired output, examples, filenames, code identifiers, and quoted text. Do not answer the prompt.
+      rewrite_prompt: Rewrite as a precise AI-assistant prompt with task, context, constraints, and desired output. Keep the user's intent and do not add unsupported requirements.
+      vocabulary: []
+    - label: Technical work
+      domains:
+        - github.com
+        - gitlab.com
+        - bitbucket.org
+        - stackoverflow.com
+        - linear.app
+        - atlassian.net
+        - vercel.com
+        - replit.com
+        - stackblitz.com
+        - codesandbox.io
+        - github.dev
+        - vscode.dev
+        - studio.firebase.google.com
+        - gitpod.io
+      dictation_prompt: Preserve issue IDs, code identifiers, branch names, file paths, CLI flags, and error messages. Use concise technical phrasing.
+      rewrite_prompt: Rewrite for technical work. Preserve identifiers exactly, keep concrete steps or acceptance criteria, and prefer bullets when the content is task-like.
+      vocabulary:
+        - PR
+        - API
+        - CLI
+        - JSON
+        - YAML
+        - HTTP
+        - SDK
+        - bug
+        - issue
+    - label: Chat reply
+      domains:
+        - app.slack.com
+        - teams.microsoft.com
+        - discord.com
+        - web.whatsapp.com
+        - web.telegram.org
+        - messenger.com
+        - youtube.com
+        - youtu.be
+      dictation_prompt: Make this concise, conversational, and easy to send as a chat reply. Avoid unnecessary formality.
+      rewrite_prompt: Rewrite as a short, friendly chat message. Keep it natural and easy to scan.
+      vocabulary: []
+    - label: Document prose
+      domains:
+        - docs.google.com
+        - notion.so
+        - notion.site
+        - coda.io
+        - confluence
+        - sharepoint.com
+        - office.com
+      dictation_prompt: Clean this into structured prose suitable for notes or documentation. Use bullets only when they improve readability.
+      rewrite_prompt: Rewrite as clear documentation or notes. Improve structure without adding unsupported details.
+      vocabulary: []
+
+vocabulary:
+  - Winsper

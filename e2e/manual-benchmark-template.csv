@@ -1,0 +1,1 @@
+product,product_version,platform,mode,model_or_quality,network_state,audio_device,app,workflow,case_id,run_number,cold_warm,expected,actual,ready_latency_ms,result_latency_ms,inserted_ok,wrong_target,cancel_leak,hallucination,meaning_score_1_5,format_score_1_5,notes

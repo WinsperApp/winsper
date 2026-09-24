@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Local application state and personal data
+config.yaml
+corrections.json
+history.jsonl
+history.enc
+usage.json
+speed_benchmarks.json
+speed_lab_clip.wav
+e2e/audio/*.wav
+voicepilot.control
+voicepilot.log
+voicepilot.state.json
+config.yaml.schema-*.bak
+
+# Generated artifacts
+artifacts/
+embedded/
+models_test/
+build/
+dist/
+*.spec
+!winsper.spec
+.test-runtime/
+
+# Local agent/editor state
+.agents/
+.codex/
+.impeccable/
+.github/agents/
+.github/hooks/
+.github/skills/
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+Desktop.ini
+
+# Temporary / external test state
+temp/
+.pytest_cache_codex/
+.pytest-capture-race/
+.pytest-tmp-focus*/
+.test-tmp/
+tmp*/
+.focus.*
+.pytest-focus*.err
+.pytest-focus*.log
+.tmp_*.txt
+.tmp_agent_reports/

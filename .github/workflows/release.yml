@@ -1,0 +1,201 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version matching voicepilot.__version__
+        required: true
+      notes:
+        description: Short release notes
+        required: false
+        default: ""
+      publish:
+        description: Publish the installer and stable update manifest after all external gates pass
+        required: true
+        type: boolean
+        default: false
+      third_party_rights_confirmed:
+        description: Confirm bundled app-mark permissions and third-party distribution review before publishing
+        required: true
+        type: boolean
+        default: false
+      unsigned_public:
+        description: Build and publish direct unsigned installer with explicit Windows warning
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    environment: production
+    steps:
+      - name: Enforce publication clearance
+        if: ${{ inputs.publish && !inputs.third_party_rights_confirmed }}
+        shell: pwsh
+        run: throw "Do not publish with unresolved app-mark permissions or third-party distribution review."
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+      - name: Install locked dependencies
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\python.exe -m pip install -r requirements-lock.txt
+          if ($LASTEXITCODE -ne 0) { throw "Locked dependency installation failed." }
+          .\.venv\Scripts\python.exe -m pip install -e . --no-deps
+          if ($LASTEXITCODE -ne 0) { throw "Winsper package installation failed." }
+      - name: Audit locked dependencies
+        shell: pwsh
+        run: |
+          python -m pip install pip-audit==2.10.1
+          if ($LASTEXITCODE -ne 0) { throw "Python audit tool installation failed." }
+          python -m pip_audit -r requirements-lock.txt --no-deps --disable-pip
+          if ($LASTEXITCODE -ne 0) { throw "Python dependency audit failed." }
+      - name: Production long-session application-action soak
+        shell: pwsh
+        run: .\.venv\Scripts\python.exe -m devtools.runtime_soak --output .\artifacts\certification\runtime-soak.json
+      - name: Preserve soak report on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Winsper-soak-${{ inputs.version }}
+          path: artifacts/certification/runtime-soak.json
+          if-no-files-found: ignore
+      - name: Verify release version
+        shell: pwsh
+        env:
+          UPDATE_BASE_URL: ${{ vars.WINSPER_UPDATE_BASE_URL }}
+          UPDATE_PUBLISHER: ${{ vars.WINSPER_UPDATE_PUBLISHER }}
+        run: |
+          $actual = .\.venv\Scripts\python.exe -c "from voicepilot import __version__; print(__version__)"
+          if ($actual -ne "${{ inputs.version }}") { throw "Version mismatch: source=$actual requested=${{ inputs.version }}" }
+          if ($env:UPDATE_BASE_URL -ne "https://winsper.app/downloads/") { throw "WINSPER_UPDATE_BASE_URL must be https://winsper.app/downloads/." }
+          if ("${{ inputs.unsigned_public }}" -ne "true" -and -not $env:UPDATE_PUBLISHER) { throw "WINSPER_UPDATE_PUBLISHER is required for signed releases." }
+      - name: Import signing certificate
+        if: ${{ !inputs.unsigned_public }}
+        id: signing
+        shell: pwsh
+        env:
+          PFX_BASE64: ${{ secrets.WINSPER_SIGNING_PFX_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.WINSPER_SIGNING_PFX_PASSWORD }}
+        run: |
+          if (-not $env:PFX_BASE64 -or -not $env:PFX_PASSWORD) { throw "Production signing secrets are required." }
+          $path = Join-Path $env:RUNNER_TEMP "winsper-signing.pfx"
+          [IO.File]::WriteAllBytes($path, [Convert]::FromBase64String($env:PFX_BASE64))
+          $secure = ConvertTo-SecureString $env:PFX_PASSWORD -AsPlainText -Force
+          $cert = Import-PfxCertificate -FilePath $path -CertStoreLocation Cert:\CurrentUser\My -Password $secure
+          "thumbprint=$($cert.Thumbprint)" >> $env:GITHUB_OUTPUT
+      - name: Locate Inno Setup
+        shell: pwsh
+        run: |
+          $dir = "C:\Program Files (x86)\Inno Setup 6"
+          if (-not (Test-Path "$dir\ISCC.exe")) { throw "Inno Setup 6 not found." }
+          $dir >> $env:GITHUB_PATH
+      - name: Build, test, and package
+        shell: pwsh
+        run: |
+          if ("${{ inputs.unsigned_public }}" -eq "true") {
+            .\scripts\build-release.ps1 -Installer -UnsignedPublic
+          } else {
+            .\scripts\build-release.ps1 -Installer -CertificateThumbprint "${{ steps.signing.outputs.thumbprint }}" -Publisher "${{ vars.WINSPER_UPDATE_PUBLISHER }}"
+          }
+      - name: Verify Authenticode before execution
+        shell: pwsh
+        run: |
+          Get-ChildItem dist\Winsper\*.exe, dist\installer\*.exe | ForEach-Object {
+            $signature = Get-AuthenticodeSignature $_.FullName
+            $expected = if ("${{ inputs.unsigned_public }}" -eq "true") { "NotSigned" } else { "Valid" }
+            if ($signature.Status -ne $expected) { throw "Unexpected signature: $($_.FullName) [$($signature.Status)] expected $expected" }
+          }
+      - name: Certify packaged startup and shutdown
+        shell: pwsh
+        run: |
+          $config = Join-Path $env:RUNNER_TEMP "winsper-release-certification.yaml"
+          .\.venv\Scripts\python.exe -c "from pathlib import Path; from voicepilot.config import AppConfig, save_config; c = AppConfig(); c.onboarding.completed = True; c.speech.preload_on_startup = False; c.dictation.polish_enabled = False; c.hotkeys.dictate = 'ctrl+alt+shift+f9'; c.hotkeys.polish = 'ctrl+alt+shift+f10'; c.hotkeys.cancel = 'ctrl+alt+shift+f11'; save_config(c, Path(r'$config'))"
+          .\scripts\certify-release-candidate.ps1 -Mode package -Config $config -Cycles 3 -Output .\artifacts\certification\release-package
+          if ($LASTEXITCODE -ne 0) {
+            $report = Get-ChildItem .\artifacts\certification\release-package -Filter report.md -Recurse | Select-Object -Last 1
+            if ($report) { Get-Content -LiteralPath $report.FullName -Tail 90 }
+            exit $LASTEXITCODE
+          }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: Winsper-package-lifecycle-${{ inputs.version }}
+          path: artifacts/certification/release-package/**
+          if-no-files-found: ignore
+      - name: Create update manifest
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem dist\installer\WinsperSetup-*.exe | Select-Object -First 1
+          .\.venv\Scripts\python.exe scripts\release_manifest.py $installer.FullName --version "${{ inputs.version }}" --base-url "${{ vars.WINSPER_UPDATE_BASE_URL }}" --notes "${{ inputs.notes }}" --output dist\installer\stable.json
+      - name: Create release inventory
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem dist\installer\WinsperSetup-*.exe | Select-Object -First 1
+          .\.venv\Scripts\python.exe scripts\release_inventory.py dist\Winsper --installer $installer.FullName --version "${{ inputs.version }}" --revision "${{ github.sha }}" --output dist\installer\release-inventory.json
+      - name: Certify clean install and uninstall
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem dist\installer\WinsperSetup-*.exe | Select-Object -First 1
+          .\scripts\test-installer-lifecycle.ps1 -InstallerPath $installer.FullName -AllowDestructiveCurrentUserTest
+          .\scripts\test-installer-lifecycle.ps1 -InstallerPath $installer.FullName -AllowDestructiveCurrentUserTest -PreserveUserData
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Winsper-${{ inputs.version }}
+          path: |
+            dist/installer/WinsperSetup-*.exe
+            dist/installer/WinsperSetup-*.exe.sha256
+            dist/installer/UNSIGNED.txt
+            dist/installer/stable.json
+            dist/installer/release-inventory.json
+            artifacts/certification/release-package/**
+            artifacts/certification/runtime-soak.json
+          if-no-files-found: error
+      - name: Verify LGPL corresponding-source bundle
+        if: ${{ inputs.publish }}
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\python.exe scripts\prepare_lgpl_source_bundle.py --output "artifacts\lgpl-source-${{ inputs.version }}"
+          if ($LASTEXITCODE -ne 0) { throw "LGPL source bundle verification failed." }
+      - name: Create GitHub release
+        if: ${{ inputs.publish }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $sourceDir = "artifacts\lgpl-source-${{ inputs.version }}"
+          $assets = @(
+            "dist\installer\WinsperSetup-${{ inputs.version }}.exe",
+            "dist\installer\WinsperSetup-${{ inputs.version }}.exe.sha256",
+            "dist\installer\stable.json",
+            "dist\installer\release-inventory.json",
+            "LGPL_SOURCE_OFFER.md",
+            "$sourceDir\sources.json"
+          )
+          $assets += @(Get-ChildItem $sourceDir -File | Where-Object { $_.Name -ne "sources.json" } | ForEach-Object { $_.FullName })
+          if (Test-Path dist\installer\UNSIGNED.txt) { $assets += "dist\installer\UNSIGNED.txt" }
+          gh release create "v${{ inputs.version }}" @assets --target "${{ github.sha }}" --title "Winsper ${{ inputs.version }}" --notes "${{ inputs.notes }}"
+          if ($LASTEXITCODE -ne 0) { throw "GitHub release and LGPL source publication failed." }
+      - name: Publish stable release
+        if: ${{ inputs.publish }}
+        shell: pwsh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          $publisher = "${{ vars.WINSPER_UPDATE_PUBLISHER }}"
+          if (-not $publisher) { $publisher = "Winsper" }
+          $arguments = @{ Version = "${{ inputs.version }}"; Publisher = $publisher }
+          if ("${{ inputs.unsigned_public }}" -eq "true") { $arguments.AllowUnsigned = $true }
+          .\scripts\publish-stable.ps1 @arguments
