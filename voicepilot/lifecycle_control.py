@@ -41,6 +41,7 @@ class LifecycleControlMixin:
             on_stop=self._on_hotkey_stop,
             cancel_combo=self.config.hotkeys.cancel,
             asynchronous_callbacks=True,
+            windows_allow_partial=True,
         )
 
     @property
@@ -205,6 +206,12 @@ class LifecycleControlMixin:
             self.hotkeys.stop()
         self.hotkeys = self._create_hotkeys()
         self.hotkeys.start()
+        if self.hotkeys.unavailable_modes:
+            self.hud.show(
+                "Shortcut needs attention",
+                "Open Settings to change the unavailable shortcut",
+                "warning",
+            )
 
     def _reload_hud(self, old_config: AppConfig, new_config: AppConfig) -> None:
         presentation_fields = ("enabled", "opacity", "show_idle", "auto_hide_seconds", "theme", "mode", "position")

@@ -279,11 +279,12 @@ def test_windows_runtime_never_starts_pynput_listener():
     instances = []
 
     class NativeHotkeys:
-        def __init__(self, bindings, on_press, on_release, *, poll_only=False):
+        def __init__(self, bindings, on_press, on_release, *, poll_only=False, allow_partial=False):
             self.bindings = bindings
             self.on_press = on_press
             self.on_release = on_release
             self.poll_only = poll_only
+            self.allow_partial = allow_partial
             self.started = False
             self.stopped = False
             instances.append(self)
@@ -294,7 +295,9 @@ def test_windows_runtime_never_starts_pynput_listener():
         def stop(self):
             self.stopped = True
 
-    hotkeys = GlobalHoldHotkeys("ctrl+space", "", "", lambda _mode: None, lambda _mode: None)
+    hotkeys = GlobalHoldHotkeys(
+        "ctrl+space", "", "", lambda _mode: None, lambda _mode: None, windows_allow_partial=True
+    )
     with (
         patch("voicepilot.hotkeys.sys.platform", "win32"),
         patch("voicepilot.windows_hotkeys.WindowsRegisteredHotkeys", NativeHotkeys),
@@ -302,6 +305,7 @@ def test_windows_runtime_never_starts_pynput_listener():
         hotkeys.start()
         assert hotkeys._listener is None
         assert instances[0].started
+        assert instances[0].allow_partial is True
         hotkeys.stop()
 
     assert instances[0].stopped
@@ -313,7 +317,7 @@ def test_windows_poll_only_tester_does_not_register_duplicate_shortcut():
     instances = []
 
     class NativeHotkeys:
-        def __init__(self, _bindings, _on_press, _on_release, *, poll_only=False):
+        def __init__(self, _bindings, _on_press, _on_release, *, poll_only=False, allow_partial=False):
             self.poll_only = poll_only
             instances.append(self)
 

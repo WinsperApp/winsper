@@ -244,8 +244,8 @@ works and Polish can fall back to the raw Dictate transcript when configured.
 
 ## Default Hotkeys
 
-- Dictate: `ctrl+win+space`
-- Polish: `ctrl+win+p`
+- Dictate: `ctrl+space`
+- Polish: `ctrl+alt+p`
 - Cancel current action: `ctrl+win+esc`
 
 If `hotkeys.tap_to_toggle_dictation` is enabled, quickly tap the dictate

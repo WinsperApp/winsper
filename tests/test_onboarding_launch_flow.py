@@ -90,6 +90,8 @@ def test_cancel_controls_clear_pause_and_request_cleanup(tmp_path, qt_app):
     qt_app.processEvents()
 
 def test_onboarding_hud_style_uses_settings_picker_and_persists(tmp_path, qt_app):
+    from voicepilot.onboarding_qt import OnboardingWindow
+
     path, window = make_window(tmp_path)
     assert [window.hud_style_combo.itemText(index) for index in range(window.hud_style_combo.count())] == [
         "Full HUD",
@@ -102,6 +104,10 @@ def test_onboarding_hud_style_uses_settings_picker_and_persists(tmp_path, qt_app
     window.close()
     qt_app.processEvents()
     assert load_config(path).hud.mode == "standard"
+    resumed = OnboardingWindow(path)
+    assert resumed.hud_style_combo.currentData() == "standard"
+    resumed.close()
+    qt_app.processEvents()
 
 
 def test_onboarding_brand_mark_is_rendered_once_at_native_size(tmp_path, qt_app):

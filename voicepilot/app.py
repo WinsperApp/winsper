@@ -205,6 +205,13 @@ class WinsperApp(ListenerLifecycleMixin, DictationPipelineMixin):
                     "Winsper will retry when dictation starts.",
                 )
             self.hotkeys.start()
+            unavailable_shortcuts = self.hotkeys.unavailable_modes
+            if unavailable_shortcuts:
+                write_runtime_log(
+                    self.config_path,
+                    "shortcut unavailable",
+                    f"Windows could not reserve: {', '.join(sorted(unavailable_shortcuts))}. Change it in Settings.",
+                )
             if not dictation_ready:
                 self.hud.show(
                     "Dictation needs attention",
@@ -215,6 +222,12 @@ class WinsperApp(ListenerLifecycleMixin, DictationPipelineMixin):
                 self.hud.show(
                     "Microphone needs attention",
                     "Winsper will retry when you speak",
+                    "warning",
+                )
+            elif unavailable_shortcuts:
+                self.hud.show(
+                    "Shortcut needs attention",
+                    "Open Settings to change the unavailable shortcut",
                     "warning",
                 )
             else:

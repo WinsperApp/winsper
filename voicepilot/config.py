@@ -18,8 +18,8 @@ HUD_POSITIONS = ("center", "left", "right", "top")
 
 @dataclass
 class HotkeyConfig:
-    dictate: str = "ctrl+win+space"
-    polish: str = "ctrl+win+p"
+    dictate: str = "ctrl+space"
+    polish: str = "ctrl+alt+p"
     cancel: str = "ctrl+win+esc"
     tap_to_toggle_dictation: bool = True
     toggle_tap_seconds: float = 0.35
@@ -125,7 +125,7 @@ class HudConfig:
     theme: str = "system"
     mode: str = "compact"  # compact | standard
     position: str = "center"  # center | left | right | top
-    recording_chimes: bool = True
+    recording_chimes: bool = False
 
 
 @dataclass

@@ -169,14 +169,14 @@ def test_hud_mode_position_and_recording_chimes_round_trip():
         config = AppConfig()
         config.hud.mode = "compact"
         config.hud.position = "top"
-        config.hud.recording_chimes = False
+        config.hud.recording_chimes = True
         save_config(config, path)
 
         loaded = load_config(path)
 
     assert loaded.hud.mode == "compact"
     assert loaded.hud.position == "top"
-    assert loaded.hud.recording_chimes is False
+    assert loaded.hud.recording_chimes is True
 
 
 def test_unknown_hud_position_falls_back_to_bottom_center():

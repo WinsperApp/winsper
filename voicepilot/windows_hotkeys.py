@@ -108,6 +108,7 @@ class WindowsRegisteredHotkeys:
         key_state: Callable[[int], int] | None = None,
         release_poll_seconds: float = RELEASE_POLL_SECONDS,
         poll_only: bool = False,
+        allow_partial: bool = False,
     ) -> None:
         self._bindings = [(mode, set(combo)) for mode, combo in bindings]
         self._on_press = on_press
@@ -115,10 +116,12 @@ class WindowsRegisteredHotkeys:
         self._key_state = key_state
         self._release_poll_seconds = max(0.001, float(release_poll_seconds))
         self._poll_only = poll_only
+        self._allow_partial = allow_partial
         self._thread: threading.Thread | None = None
         self._thread_id = 0
         self._ready = threading.Event()
         self._registered_modes: set[str] = set()
+        self._failed_modes: set[str] = set()
         self._stopping = threading.Event()
         self._release_lock = threading.Lock()
         self._release_generation = 0
@@ -130,12 +133,17 @@ class WindowsRegisteredHotkeys:
     def registered_modes(self) -> frozenset[str]:
         return frozenset(self._registered_modes)
 
+    @property
+    def failed_modes(self) -> frozenset[str]:
+        return frozenset(self._failed_modes)
+
     def start(self) -> None:
         if sys.platform != "win32" or self._thread is not None or self._fallback_thread is not None:
             return
         self._ready.clear()
         self._stopping.clear()
         self._start_error = None
+        self._failed_modes.clear()
         unsupported_modes = [
             mode
             for mode, combo in self._bindings
@@ -293,12 +301,15 @@ class WindowsRegisteredHotkeys:
                 else:
                     failed_modes.append(mode)
             if failed_modes:
+                self._failed_modes.update(failed_modes)
                 names = ", ".join(failed_modes)
-                self._start_error = RuntimeError(
-                    f"Windows could not reserve configured shortcut(s): {names}. "
-                    "Close the conflicting app or choose different shortcuts."
-                )
-                return
+                if not self._allow_partial:
+                    self._start_error = RuntimeError(
+                        f"Windows could not reserve configured shortcut(s): {names}. "
+                        "Close the conflicting app or choose different shortcuts."
+                    )
+                    return
+                logger.warning("Windows could not reserve configured shortcut(s): %s.", names)
             self._ready.set()
 
             message = wintypes.MSG()

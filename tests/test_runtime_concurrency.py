@@ -53,7 +53,8 @@ def test_isolated_audio_forced_disposal_never_waits_for_queue_feeders():
         channel.join_thread.assert_not_called()
 
 
-def test_app_startup_prepares_inactive_microphone_before_enabling_hotkeys(tmp_path):
+@pytest.mark.parametrize("unavailable_modes", [frozenset(), frozenset({"polish"})])
+def test_app_startup_prepares_inactive_microphone_before_enabling_hotkeys(tmp_path, unavailable_modes):
     from voicepilot.app import WinsperApp
 
     events = []
@@ -68,6 +69,9 @@ def test_app_startup_prepares_inactive_microphone_before_enabling_hotkeys(tmp_pa
             hud_messages.append(args)
 
     class Hotkeys:
+        def __init__(self) -> None:
+            self.unavailable_modes = unavailable_modes
+
         def start(self) -> None:
             events.append("hotkeys")
 
@@ -99,13 +103,18 @@ def test_app_startup_prepares_inactive_microphone_before_enabling_hotkeys(tmp_pa
     assert events.index("show:Preparing Winsper") < events.index("dictation")
     assert events.index("dictation") < events.index("audio")
     assert events.index("audio") < events.index("hotkeys")
-    assert events.index("hotkeys") < events.index("show:Ready")
+    expected_state = "Shortcut needs attention" if unavailable_modes else "Ready"
+    assert events.index("hotkeys") < events.index(f"show:{expected_state}")
     assert events.index("hotkeys") < events.index("tray")
     assert events.index("hotkeys") < events.index("history")
     assert events.index("hotkeys") < events.index("polish")
     assert hud_messages == [
         ("Preparing Winsper", "Getting things ready", "preparing"),
-        ("Ready", "Hold the hotkey to speak", "idle"),
+        (
+            "Shortcut needs attention" if unavailable_modes else "Ready",
+            "Open Settings to change the unavailable shortcut" if unavailable_modes else "Hold the hotkey to speak",
+            "warning" if unavailable_modes else "idle",
+        ),
     ]
     assert events[-1] == "shutdown"
 
@@ -137,7 +146,7 @@ def test_app_startup_preserves_console_hud_fallback_and_shutdown(tmp_path):
     app.recorder.warm_up.return_value = True
     app._stop_event = threading.Event()
     app._stop_event.set()
-    app._create_hotkeys = Mock(return_value=Mock())
+    app._create_hotkeys = Mock(return_value=Mock(unavailable_modes=frozenset()))
     app._write_runtime_state = Mock()
     app.shutdown = lambda: events.append("shutdown")
 

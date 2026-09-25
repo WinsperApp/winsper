@@ -262,13 +262,14 @@ def test_config_serializes():
     data = config_to_dict(AppConfig())
     assert data["speech"]["model"] == "small.en"
     assert data["speech"]["preload_on_startup"] is True
-    assert data["hotkeys"]["dictate"] == "ctrl+win+space"
-    assert data["hotkeys"]["polish"] == "ctrl+win+p"
+    assert data["hotkeys"]["dictate"] == "ctrl+space"
+    assert data["hotkeys"]["polish"] == "ctrl+alt+p"
     assert data["hotkeys"]["cancel"] == "ctrl+win+esc"
     assert data["dictation"]["polish_enabled"] is True
     assert data["dictation"]["ramble_model"] == "small.en"
     assert data["dictation"]["polish_fallback_to_ramble"] is True
     assert data["hud"]["theme"] == "system"
+    assert data["hud"]["recording_chimes"] is False
     assert data["startup"]["start_with_windows"] is False
     assert data["onboarding"]["completed"] is False
     assert data["history"]["enabled"] is True

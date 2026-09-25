@@ -40,6 +40,7 @@ class GlobalHoldHotkeys:
         cancel_combo: str = "",
         asynchronous_callbacks: bool = False,
         windows_poll_only: bool = False,
+        windows_allow_partial: bool = False,
     ) -> None:
         self.dictate_combo = parse_combo(dictate_combo)
         self.polish_combo = parse_combo(polish_combo)
@@ -49,6 +50,7 @@ class GlobalHoldHotkeys:
         self.on_stop = on_stop
         self.asynchronous_callbacks = asynchronous_callbacks
         self.windows_poll_only = windows_poll_only
+        self.windows_allow_partial = windows_allow_partial
         self._pressed: set[str] = set()
         self._pressed_at: dict[str, float] = {}
         self._active_mode: str | None = None
@@ -65,6 +67,10 @@ class GlobalHoldHotkeys:
         self._callback_thread: threading.Thread | None = None
         self._elevated_toggle_mode: str | None = None
         self._running = threading.Event()
+
+    @property
+    def unavailable_modes(self) -> frozenset[str]:
+        return getattr(self._registered_hotkeys, "failed_modes", frozenset())
 
     def run(self) -> None:
         self.start()
@@ -85,6 +91,7 @@ class GlobalHoldHotkeys:
                     self._on_registered_press,
                     self._on_registered_release,
                     poll_only=self.windows_poll_only,
+                    allow_partial=self.windows_allow_partial,
                 )
                 self._registered_hotkeys.start()
                 logger.info(

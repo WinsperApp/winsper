@@ -1,8 +1,8 @@
 schema_version: 4
 
 hotkeys:
-  dictate: ctrl+win+space
-  polish: ctrl+win+p
+  dictate: ctrl+space
+  polish: ctrl+alt+p
   cancel: ctrl+win+esc
   tap_to_toggle_dictation: true
   toggle_tap_seconds: 0.35
@@ -75,7 +75,7 @@ hud:
   theme: system
   mode: compact
   position: center
-  recording_chimes: true
+  recording_chimes: false
 
 tray:
   enabled: true
