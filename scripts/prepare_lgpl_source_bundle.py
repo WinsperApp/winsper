@@ -46,7 +46,7 @@ def prepare(output: Path) -> None:
     root = Path(__file__).resolve().parents[1]
     version = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
     lock = (root / "requirements-lock.txt").read_text(encoding="utf-8")
-    if version != "1.1.1" or not all(
+    if version != "1.1.2" or not all(
         pinned in lock for pinned in ("PySide6==6.11.1", "pynput==1.8.2", "pystray==0.19.5")
     ):
         raise ValueError("LGPL source list must be updated for this release's locked versions")
@@ -80,5 +80,5 @@ def prepare(output: Path) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=Path("artifacts/lgpl-source-1.1.1"))
+    parser.add_argument("--output", type=Path, default=Path("artifacts/lgpl-source-1.1.2"))
     prepare(parser.parse_args().output)
