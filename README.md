@@ -27,12 +27,15 @@ Hold a shortcut, speak, release. Winsper writes at your cursor without a copy-pa
 
 No special editor plugin. No account or API key for the default local path. Winsper works wherever Windows lets it capture a shortcut and insert text; app awareness guides formatting, not access to the rest of your screen.
 
-## Made for the way you work
+## Why Winsper
 
-- **Fits your setup.** Pick Fast, Balanced, or Best speech and Polish quality. Download only models you choose; use CPU or supported local acceleration.
-- **Remembers your words.** Personal corrections, custom terms, text shortcuts, and local History help with names, repeated phrases, and recovery.
-- **Stays out of the way.** Full HUD, compact listening wave, or sound-only feedback. Optional start/stop chimes; configurable shortcuts and HUD position.
-- **Keeps you in control.** Local speech and default Polish processing, no automatic telemetry upload, visible model downloads, and a Privacy page for local data. Ollama and custom model settings are optional.
+- **Works at your cursor.** Use the same shortcut in mail, chat, notes, browsers, and coding tools. No editor plugin or copy-paste loop.
+- **Knows when you want a rewrite.** Speak freely to clean up a new thought, or select existing text and tell Winsper what to change. Those are separate flows, not a single prompt guessing your intent.
+- **Uses the destination, not your whole screen.** App-aware Polish can shape an email differently from a chat message or coding request. Winsper uses the focused app as a formatting cue; it does not send screenshots to a model.
+- **Runs locally by default.** Speech and built-in Polish stay on your PC. No account, subscription, or API key needed. Ollama and custom models remain optional choices.
+- **No always-on speech capture.** Winsper briefly conditions the microphone at startup, then stops capture. It listens for speech when you use the shortcut, not while you work between requests.
+- **Built with Qt, not Electron.** Winsper can preload your chosen speech model so the first Dictate shortcut need not wait for model loading. Dictation goes from local speech recognition straight to insertion, without a Polish model call.
+- **Feels like your tool.** Choose Fast, Balanced, or Best models; teach Winsper names and corrections; use text shortcuts and local History. Pick a full HUD, compact wave, or sound-only feedback.
 
 Full HUD and compact HUD, rendered from the app's own interface:
 
@@ -40,6 +43,14 @@ Full HUD and compact HUD, rendered from the app's own interface:
   <img src=".github/assets/hud-listening-light.png" alt="Winsper full recording HUD with listening status" width="500">
   <img src=".github/assets/hud-compact-light.png" alt="Winsper compact recording HUD with listening wave" width="180">
 </p>
+
+## More than transcription
+
+- **Speak the layout.** Say `new line` or `new paragraph` to format as you dictate. End with `press enter` to insert your words and send Enter; the phrase itself is not pasted. These voice triggers also work with Polish.
+- **Make your own voice shortcuts.** Save `insert my signature` with your actual sign-off, then say the trigger to paste it. Winsper ships date/time shortcuts; it never invents or preloads your personal signature.
+- **Choose your language and models.** The speech picker lists 100 languages, auto-detection, and mixed-language options such as Hinglish. Compatible models vary by language: Winsper offers Whisper and Parakeet for speech, and Qwen 2.5/3 models for local Polish. Fast, Balanced, and Best trade speed, memory, and output quality differently; optional Ollama supports your own models.
+
+See the [guide](docs/USAGE.md) for trigger settings, language/model compatibility, and custom shortcuts.
 
 ## Get started
 
