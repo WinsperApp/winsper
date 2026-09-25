@@ -36,6 +36,7 @@ dist/
 # Local agent/editor state
 .agents/
 .codex/
+.wrangler/
 .impeccable/
 .github/agents/
 .github/hooks/
