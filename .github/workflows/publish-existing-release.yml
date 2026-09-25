@@ -1,0 +1,55 @@
+name: Publish existing release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing GitHub release version
+        required: true
+      unsigned_public:
+        description: Publish the verified unsigned installer with its warning
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: v${{ inputs.version }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+      - name: Download immutable release assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Force dist\installer | Out-Null
+          gh release download "v${{ inputs.version }}" --dir dist\installer --pattern "WinsperSetup-${{ inputs.version }}.exe" --pattern "WinsperSetup-${{ inputs.version }}.exe.sha256" --pattern stable.json --pattern UNSIGNED.txt
+          if ($LASTEXITCODE -ne 0) { throw "Could not download the existing release assets." }
+          python -m venv .venv
+          if ($LASTEXITCODE -ne 0) { throw "Could not prepare release verification runtime." }
+      - name: Publish verified stable assets
+        shell: pwsh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if (-not $env:CLOUDFLARE_API_TOKEN -or -not $env:CLOUDFLARE_ACCOUNT_ID) {
+            throw "Cloudflare release credentials are not configured."
+          }
+          $publisher = "${{ vars.WINSPER_UPDATE_PUBLISHER }}"
+          if (-not $publisher) { $publisher = "Winsper" }
+          $arguments = @{ Version = "${{ inputs.version }}"; Publisher = $publisher }
+          if ("${{ inputs.unsigned_public }}" -eq "true") { $arguments.AllowUnsigned = $true }
+          .\scripts\publish-stable.ps1 @arguments
