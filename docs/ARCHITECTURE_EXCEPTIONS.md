@@ -4,7 +4,7 @@ The normal production-module target is approximately 500 lines. A limit is a mai
 
 | Module | Why it remains cohesive | Split trigger |
 | --- | --- | --- |
-| `audio.py` | One stateful recorder owns stream selection, callback state, warm reuse, and recovery invariants. Splitting it now would distribute a safety-critical state machine that was hardware-certified in Phase 2. | A second recorder backend or independent device service is introduced. |
+| `audio.py` | One stateful recorder owns stream selection, callback state, warm reuse, and recovery invariants. Splitting it now would distribute a safety-critical state machine with hardware-sensitive behavior. | A second recorder backend or independent device service is introduced. |
 | `paste.py` | Clipboard snapshot, focus guard, paste, restore, and recovery form one transaction. | A non-Windows insertion backend is introduced. |
 | `app_pipeline.py` | One orchestration surface connects typed dictation/polish outcomes; hardware, rendering, and support actions are already external. | Another action pipeline stops sharing the same transaction. |
 | `app_context.py` | Foreground and browser context are one bounded detection service with a shared cache. | Browser detection becomes an independent process/service. |

@@ -22,9 +22,11 @@ the engineering source of truth behind the in-app Privacy Report.
 - Speech models are downloaded over HTTPS from exact repository revisions pinned
   in the release. Optional Polish models and runtimes additionally require the
   release-owned size and SHA-256 values.
-- Update metadata and installers use HTTPS. Installers must match the manifest
-  SHA-256 and have a trusted Authenticode signature from the configured Winsper
-  publisher before launch.
+- Update metadata and installers use HTTPS. The current unsigned release is
+  offered through the download page for a manual install. Winsper does not
+  automatically download or run it. The automated download path requires a
+  matching manifest SHA-256 and trusted publisher signature before exposing an
+  installer for launch.
 - The website, support contact, model downloads, and software updates use
   network services independently of the local speech and writing paths.
 
@@ -37,8 +39,7 @@ the engineering source of truth behind the in-app Privacy Report.
 | Speech/model downloads | Tampered files or archive traversal | HTTPS, exact speech revisions, pinned Polish SHA-256, safe ZIP extraction, atomic installation |
 | Embedded Polish server | Local-network exposure or unauthorised calls | Random per-process API key and `127.0.0.1` binding only |
 | Polish prompt boundary | Selected text acting as instructions | Selected text is delimited as untrusted context; output validation blocks unsafe/no-op replacement |
-| License service | Stolen key or local-state tampering | HTTPS provider API, DPAPI state, product policy compiled into the app |
-| Updates | Malicious installer | HTTPS feed, strict manifest, SHA-256, pinned trusted publisher signature |
+| Updates | Malicious installer | Official HTTPS feed and manual download page for unsigned releases; automatic download requires a strict manifest, SHA-256, and trusted publisher signature |
 | Diagnostics | Secrets or dictated text in support logs | No transcript logging by default, credential redaction, user-initiated sharing only |
 | Config/history writes | Partial or corrupt files | Atomic replace writes and bounded local stores |
 
