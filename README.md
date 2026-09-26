@@ -30,7 +30,7 @@ No editor plugin required. Winsper works wherever Windows lets it capture a shor
 ## Why Winsper
 
 - **An email isn't a chat message.** App-aware Polish uses the focused app to guide tone and format—without sending screenshots to a model.
-- **Runs locally by default.** Speech and built-in Polish stay on your PC. No account, subscription, or API key needed. Ollama and custom models remain optional choices.
+- **Runs locally by default.** Speech and built-in Polish stay on your PC. No account, subscription, or API key needed. Polish supports Winsper’s built-in AI engine (a managed local llama.cpp server) or Ollama with your own installed models.
 - **No always-on speech capture.** Winsper briefly conditions the microphone at startup, then stops capture. It listens for speech when you use the shortcut, not while you work between requests.
 - **Built with Qt, not Electron.** Winsper can preload your chosen speech model so the first Dictate shortcut need not wait for model loading. Dictation goes from local speech recognition straight to insertion, without a Polish model call.
 - **Your words, remembered.** Add names, terms, and corrections; revisit past results in local History.
