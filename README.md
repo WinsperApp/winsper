@@ -51,6 +51,16 @@ Full HUD and compact HUD, rendered from the app's own interface:
 
 See the [guide](docs/USAGE.md) for trigger settings, language/model compatibility, and custom shortcuts.
 
+## Own the tool. Not another meter.
+
+| What matters | Winsper | Cloud-based dictation |
+| --- | --- | --- |
+| Speech processing | On your PC | On remote servers |
+| Offline dictation | Yes, after model setup | Needs a connection |
+| Audio destination | Stays on your PC | Sent for processing |
+| App subscription | None. Free forever. | Depends on the provider |
+| Processing resources | Your CPU or GPU | Provider’s servers |
+
 ## Get started
 
 1. Download the [Windows installer](https://winsper.app/download/) for Windows 10/11 x64.
