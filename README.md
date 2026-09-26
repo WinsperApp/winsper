@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://winsper.app/download/">Download for Windows</a> ·
-  <a href="https://github.com/WinsperApp/winsper/releases/latest">Latest release</a> ·
+  <a href="https://github.com/WinsperApp/winsper/releases/latest">Release notes</a> ·
   <a href="https://winsper.app/">winsper.app</a> ·
   <a href="docs/USAGE.md">Guide</a>
 </p>
@@ -74,6 +74,8 @@ On Windows with Python 3.12 or 3.13 and PowerShell:
 Run the deterministic tests with `.\scripts\test.ps1`. Hardware tests are separate and opt-in. See the [full guide](docs/USAGE.md) for shortcuts, model choices, configuration, troubleshooting, and the project layout.
 
 ## Project
+
+Winsper is free forever. If it saves you time, you can [support Winsper on Buy Me a Coffee](https://www.buymeacoffee.com/winsper). Contributions are optional and never unlock features.
 
 - [Contributing](CONTRIBUTING.md) · [Report a security issue](SECURITY.md)
 - [MIT license](LICENSE) · [Third-party and model terms](THIRD_PARTY_NOTICES.md) · [Code signing policy](CODE_SIGNING.md)
