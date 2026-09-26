@@ -66,6 +66,8 @@ See the [guide](docs/USAGE.md) for trigger settings, language/model compatibilit
 1. Download the [Windows installer](https://winsper.app/download/) for Windows 10/11 x64.
 2. Run setup, choose your language, and download a speech model. Internet is needed for downloads, not everyday local dictation.
 3. Click a text field. Hold **Ctrl+Space**, say something, then release to insert it.
+
+For hands-free recording, quickly tap **Ctrl+Space** to lock Dictate on. Tap again to stop and insert. Holding still works for push-to-talk; tap-to-toggle can be disabled in Settings.
 4. Want a cleaner draft? Enable Polish and download its model. Hold **Ctrl+Alt+P** to speak a rough thought, or select existing text first and say what to change.
 
 These are the default shortcuts. You can change them in Settings.

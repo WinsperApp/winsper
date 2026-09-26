@@ -16,6 +16,29 @@ from .updates import UpdateInfo, check_for_update, manual_download_url
 from .windows_ui import apply_native_menu_theme
 
 
+def create_branded_tray_icon(pystray, *args, **kwargs):
+    """Supply Windows balloon branding without changing other tray behavior."""
+    if os.name != "nt":
+        return pystray.Icon(*args, **kwargs)
+
+    class BrandedIcon(pystray.Icon):
+        def _notify(self, message, title=None):
+            from pystray._util import win32
+
+            self._assert_icon_handle()
+            self._message(
+                win32.NIM_MODIFY,
+                win32.NIF_INFO,
+                szInfo=message,
+                szInfoTitle=title or self.title or "Winsper",
+                dwInfoFlags=0x00000004,  # NIIF_USER: use the application icon.
+                hIcon=self._icon_handle,
+                hBalloonIcon=self._icon_handle,
+            )
+
+    return BrandedIcon(*args, **kwargs)
+
+
 class NoopTray:
     def start(self) -> None:
         pass
@@ -68,7 +91,8 @@ class WinsperTray:
 
         apply_native_menu_theme(resolve_theme(self.config.hud.theme))
         self._pystray = pystray
-        self._icon = pystray.Icon(
+        self._icon = create_branded_tray_icon(
+            pystray,
             "Winsper",
             create_tray_icon_image(),
             "Winsper",
