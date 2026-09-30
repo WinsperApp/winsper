@@ -166,7 +166,7 @@ def test_packaged_onboarding_uses_app_owned_marks() -> None:
     spec = Path("winsper.spec").read_text(encoding="utf-8")
     package_config = Path("pyproject.toml").read_text(encoding="utf-8")
 
-    for filename in ("outlook.svg", "slack.png", "chatgpt.png", "vscode.png", "terminal.png"):
+    for filename in ("outlook.svg", "slack.png", "chatgpt.png", "vscode.png", "command-prompt.svg"):
         assert filename in spec
         assert (Path("voicepilot") / "assets" / "apps" / filename).is_file()
         assert f'"assets/apps/{filename}"' in package_config
