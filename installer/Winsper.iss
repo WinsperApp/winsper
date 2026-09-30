@@ -1,6 +1,6 @@
 #define MyAppName "Winsper"
 #ifndef MyAppVersion
-#define MyAppVersion "1.1.3"
+#define MyAppVersion "1.1.4"
 #endif
 #ifndef MyAppPublisher
 #define MyAppPublisher "Winsper"
