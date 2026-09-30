@@ -50,7 +50,7 @@ voicepilot = [
   "assets/apps/slack.png",
   "assets/apps/chatgpt.png",
   "assets/apps/vscode.png",
-  "assets/apps/terminal.png",
+  "assets/apps/command-prompt.svg",
 ]
 
 [tool.pytest.ini_options]

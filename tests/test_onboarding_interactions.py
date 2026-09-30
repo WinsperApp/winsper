@@ -223,17 +223,17 @@ def test_polish_teaches_speech_then_app_choice_then_result(tmp_path, qt_app):
     assert "tests are still running" in examples["Slack"].casefold()
     assert "recommend one" in examples["ChatGPT"].casefold()
     assert "create a json object" in examples["VS Code"].casefold()
-    assert examples["Windows Terminal"] == "CD into Documents."
+    assert examples["Command Prompt"] == "CD into Documents."
     routes = {
         button.text(): (button.property("process_name"), button.property("profile_name"))
         for button in window.polish_app_group.buttons()
     }
     assert routes["ChatGPT"] == ("chatgpt.exe", "prompt")
-    assert routes["Windows Terminal"] == ("windowsterminal.exe", "terminal")
+    assert routes["Command Prompt"] == ("cmd.exe", "terminal")
     terminal_destination = infer_destination(
-        "windowsterminal.exe", "Terminal", "terminal", "Windows Terminal"
+        "cmd.exe", "Command Prompt", "terminal", "Command Prompt"
     )
-    assert no_selection_operation(examples["Windows Terminal"], terminal_destination) == "command"
+    assert no_selection_operation(examples["Command Prompt"], terminal_destination) == "command"
     for button in window.polish_app_group.buttons():
         button.click()
         assert window.polish_free_prompt_text.text() == examples[button.text()]

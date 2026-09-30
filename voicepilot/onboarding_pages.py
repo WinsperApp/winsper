@@ -764,8 +764,8 @@ class OnboardingPagesMixin:
             ),
             (
                 "terminal",
-                "Windows Terminal",
-                "windowsterminal.exe",
+                "Command Prompt",
+                "cmd.exe",
                 "terminal",
                 "CD into Documents.",
             ),

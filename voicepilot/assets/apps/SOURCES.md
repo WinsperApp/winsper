@@ -1,5 +1,7 @@
 # App-mark provenance
 
+`command-prompt.svg` is an original generic command-window symbol, not a Microsoft product logo.
+
 Retrieved 2026-08-07. These marks identify example apps in Winsper's app-awareness demonstration. App names and marks belong to their respective owners; no affiliation or endorsement is implied.
 
 - Outlook: Microsoft Fluent product icon CDN — https://static2.sharepointonline.com/files/fabric/assets/brand-icons/product-fluent/svg/outlook_48x1.svg

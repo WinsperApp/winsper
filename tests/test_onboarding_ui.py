@@ -514,7 +514,7 @@ def test_setup_exercises_use_real_shortcuts_not_test_buttons(tmp_path, qt_app):
         "Slack",
         "ChatGPT",
         "VS Code",
-        "Windows Terminal",
+        "Command Prompt",
     ]
     assert all(not button.icon().isNull() for button in app_buttons)
     close_window(window, qt_app)

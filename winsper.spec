@@ -50,7 +50,7 @@ runtime_assets = [
 ]
 assets = collect_data_files("voicepilot", includes=runtime_assets)
 assets += collect_data_files("faster_whisper", includes=["assets/*"])
-for app_mark in ("outlook.svg", "slack.png", "chatgpt.png", "vscode.png", "terminal.png"):
+for app_mark in ("outlook.svg", "slack.png", "chatgpt.png", "vscode.png", "command-prompt.svg"):
     source = root / "voicepilot" / "assets" / "apps" / app_mark
     if not source.is_file():
         raise RuntimeError(f"Onboarding app mark is missing: {source}")
